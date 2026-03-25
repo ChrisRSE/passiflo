@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Passiflo",
+  "version": "1.0.0",
+  "description": "Capture before/after screenshots and generate a structured Copilot prompt for QA testing.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "sidePanel",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/passiflo.png",
+      "48": "icons/passiflo.png",
+      "128": "icons/passiflo.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/passiflo.png",
+    "48": "icons/passiflo.png",
+    "128": "icons/passiflo.png"
+  }
+}

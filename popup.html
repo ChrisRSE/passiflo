@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Passiflo</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+  <!-- ─── HEADER ──────────────────────────────────────────────────── -->
+  <header class="header">
+    <nav class="steps" aria-label="Progress">
+      <div class="step" data-step="1">
+        <span class="step-num">1</span>
+        <span class="step-label">SETUP</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" data-step="2">
+        <span class="step-num">2</span>
+        <span class="step-label">CAPTURE</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step" data-step="3">
+        <span class="step-num">3</span>
+        <span class="step-label">OUTPUT</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ─── VIEW: SETUP (Step 1) ────────────────────────────────────── -->
+  <main id="view-setup" class="view">
+
+    <div class="view-content">
+
+      <div class="field-group">
+        <span class="field-label">CHECK TYPE</span>
+        <div class="radio-group">
+
+          <label class="radio-option">
+            <input type="radio" name="checkType" value="acceptance_criteria" checked>
+            <span class="radio-custom"></span>
+            <span class="radio-text">
+              <strong>Acceptance Criteria</strong>
+              <span class="radio-hint">Does this feature work as specified?</span>
+            </span>
+          </label>
+
+          <label class="radio-option">
+            <input type="radio" name="checkType" value="regression">
+            <span class="radio-custom"></span>
+            <span class="radio-text">
+              <strong>Regression</strong>
+              <span class="radio-hint">Did this change break anything?</span>
+            </span>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- AC mode fields (shown by default) -->
+      <div class="field-group" id="acSection">
+        <span class="field-label field-label-instruction">What should pass for this check to succeed?</span>
+        <div id="acList"></div>
+        <button class="btn-add-ac" id="btnAddAc" type="button">+ Add AC</button>
+        <span class="field-label">NOTES <span class="field-label-opt">optional</span></span>
+        <textarea
+          id="acNotes"
+          class="textarea"
+          placeholder="Additional context or testing notes..."
+          rows="2"
+        ></textarea>
+      </div>
+
+      <!-- Regression mode fields (hidden by default) -->
+      <div class="field-group hidden" id="regressionSection">
+        <label class="field-label" for="checkDescription">WHAT ARE YOU CHECKING FOR?</label>
+        <textarea
+          id="checkDescription"
+          class="textarea"
+          placeholder="e.g. The page layout is unchanged after the latest deployment"
+          rows="3"
+        ></textarea>
+      </div>
+
+    </div>
+
+    <footer class="view-footer footer-spaced">
+      <button id="btnReset1" class="btn btn-ghost">↺ Reset</button>
+      <button id="btnContinue" class="btn btn-primary" disabled>Continue →</button>
+    </footer>
+
+    <div id="setupHint" class="setup-hint"></div>
+
+  </main>
+
+  <!-- ─── VIEW: CAPTURE (Step 2) ──────────────────────────────────── -->
+  <main id="view-capture" class="view">
+
+    <div class="view-content">
+
+      <!-- Summary of Step 1 answers -->
+      <div class="summary-bar" id="summaryBar"></div>
+
+      <!-- Comparison mode: two slots -->
+      <div id="comparisonSlots">
+
+        <div class="capture-slot" id="slot1">
+          <div class="slot-header">
+            <span class="slot-badge">1</span>
+            <span class="slot-title" id="slot1Title">BEFORE</span>
+            <span class="slot-status" id="slot1Status">Not captured</span>
+          </div>
+          <div class="slot-preview" id="slot1Preview">
+            <div class="slot-placeholder">
+              <span class="slot-placeholder-icon">&#9643;</span>
+              <span>No screenshot yet</span>
+            </div>
+          </div>
+          <button class="btn btn-capture" id="btnCapture1">Capture Before</button>
+        </div>
+
+        <div class="capture-slot" id="slot2">
+          <div class="slot-header">
+            <span class="slot-badge">2</span>
+            <span class="slot-title" id="slot2Title">AFTER</span>
+            <span class="slot-status" id="slot2Status">Not captured</span>
+          </div>
+          <div class="slot-preview" id="slot2Preview">
+            <div class="slot-placeholder">
+              <span class="slot-placeholder-icon">&#9643;</span>
+              <span>Capture Before first</span>
+            </div>
+          </div>
+          <button class="btn btn-capture" id="btnCapture2" disabled>Capture After</button>
+        </div>
+
+      </div>
+
+      <!-- Single mode: one slot (hidden by default) -->
+      <div id="singleSlot" class="hidden">
+
+        <div class="capture-slot" id="slot1single">
+          <div class="slot-header">
+            <span class="slot-badge">1</span>
+            <span class="slot-title">SCREENSHOT</span>
+            <span class="slot-status" id="slot1singleStatus">Not captured</span>
+          </div>
+          <div class="slot-preview" id="slot1singlePreview">
+            <div class="slot-placeholder">
+              <span class="slot-placeholder-icon">&#9643;</span>
+              <span>No screenshot yet</span>
+            </div>
+          </div>
+          <button class="btn btn-capture" id="btnCaptureSingle">Capture Screenshot</button>
+        </div>
+
+      </div>
+
+      <!-- Mode toggles -->
+      <label class="toggle-option" id="singleModeToggleLabel">
+        <input type="checkbox" id="singleModeToggle">
+        <span class="toggle-custom"></span>
+        <span class="toggle-text">Single screenshot only</span>
+      </label>
+
+      <!-- Capture options group -->
+      <div class="capture-options-group">
+        <span class="capture-options-label">CAPTURE OPTIONS</span>
+
+        <label class="toggle-option">
+          <input type="checkbox" id="htmlFullModeToggle" checked>
+          <span class="toggle-custom"></span>
+          <span class="toggle-text">Streamline HTML <abbr class="toggle-info" title="Streamlined (ON): captures the main content area plus any headers, nav bars, dialogs, modals, sign-in banners, and cookie notices found outside it. Strips all CSS classes, data attributes, and noise — keeping only structure and text. Best for most checks.&#10;&#10;Full (OFF): captures the complete page DOM, stripping only script tags. Use this if the feature flag affects something Streamlined might miss, such as deeply nested components or custom layouts without semantic HTML.">i</abbr></span>
+        </label>
+
+        <label class="toggle-option">
+          <input type="checkbox" id="tokenOptimiseToggle" checked>
+          <span class="toggle-custom"></span>
+          <span class="toggle-text">Token Optimise <abbr class="toggle-info" title="Removes decorative SVGs, duplicate screen reader spans, and image format alternatives. Reduces output size significantly with no loss of structural or text content.">i</abbr></span>
+        </label>
+      </div>
+
+      <!-- Capture hint -->
+      <div class="hint-box">
+        Navigate to the page you want to capture, then click a button above.
+        The extension captures the tab visible behind this panel.
+      </div>
+
+      <!-- Error display -->
+      <div class="error-box hidden" id="captureError"></div>
+
+    </div>
+
+    <footer class="view-footer footer-spaced">
+      <button class="btn btn-secondary" id="btnBack">← Back</button>
+      <button id="btnReset2" class="btn btn-ghost">↺ Reset</button>
+      <button class="btn btn-primary" id="btnGenerate" disabled>Generate →</button>
+    </footer>
+
+  </main>
+
+  <!-- ─── VIEW: OUTPUT (Step 3) ───────────────────────────────────── -->
+  <main id="view-output" class="view">
+
+    <div class="view-content">
+
+      <!-- Check summary -->
+      <div class="output-summary">
+        <div class="collapse-header" id="outputSummaryHeader">
+          <span class="output-summary-badge" id="outputSummaryType"></span>
+          <span class="collapse-chevron" id="outputSummaryChevron">▾</span>
+        </div>
+        <div id="outputSummaryBody"></div>
+      </div>
+
+      <!-- Generated prompt -->
+      <div class="output-section" id="outputPromptSection">
+        <div class="output-section-header collapse-header" id="outputPromptHeader">
+          <span class="output-section-label">PROMPT</span>
+          <span class="collapse-chevron" id="outputPromptChevron">▾</span>
+        </div>
+        <div class="collapse-body" id="outputPromptBody">
+          <textarea class="output-prompt" id="outputPromptTextarea" readonly spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <!-- Screenshots -->
+      <div class="output-section">
+        <div class="output-section-header">
+          <span class="output-section-label">SCREENSHOTS</span>
+          <span class="output-section-hint">optional — attach to Copilot for visual confirmation</span>
+        </div>
+        <div class="output-shots" id="outputScreenshotsGrid"></div>
+      </div>
+
+      <div class="token-estimate" id="tokenEstimate"></div>
+      <div class="token-warning hidden" id="tokenWarning"></div>
+
+    </div>
+
+    <footer class="view-footer output-footer">
+      <button class="btn btn-ghost" id="btnNewCheck">↺ New Check</button>
+      <button class="btn btn-primary" id="btnCopyHtmlOutput">
+        <span id="copyHtmlOutputLabel">Copy Prompt</span>
+      </button>
+      <button class="btn btn-secondary" id="btnBackFromOutput">← Back</button>
+    </footer>
+
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
